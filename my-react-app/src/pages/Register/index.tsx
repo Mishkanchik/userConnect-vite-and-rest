@@ -59,7 +59,7 @@ export default function RegisterPage() {
 
       alert(res.message);
 
-      dispatch(setCredentials({ user: username, token: null }));
+      dispatch(setCredentials({ user: { username, id: "" }, access: "" }));
       navigate("/");
     } catch (err: any) {
       if (err?.data) {

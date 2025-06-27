@@ -36,7 +36,8 @@ class Category(models.Model):
 class CustomUser(AbstractUser):
     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Телефон")
     image = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name="Аватар")
-
+    isGoogle = models.BooleanField(default=False)
+    
     def __str__(self):
         return self.username
 

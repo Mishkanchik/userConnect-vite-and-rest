@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { type RootState } from "../../store";
 
-const BASE_URL = "http://127.0.0.1:4096"; // твій бекенд
+const BASE_URL = "http://127.0.0.1:4096";
 
 const ProfilePage = () => {
   const user = useSelector((state: RootState) => state.auth.user);
