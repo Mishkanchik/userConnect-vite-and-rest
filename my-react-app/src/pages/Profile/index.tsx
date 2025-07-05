@@ -1,8 +1,9 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { type RootState } from "../../store";
+import { APP_ENV } from "../../env";
 
-const BASE_URL = "http://127.0.0.1:4096";
+const BASE_URL = APP_ENV.API_BASE_URL;
 
 const ProfilePage = () => {
   const user = useSelector((state: RootState) => state.auth.user);

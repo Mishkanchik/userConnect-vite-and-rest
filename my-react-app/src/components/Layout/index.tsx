@@ -13,8 +13,9 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../slices/authSlice";
 import { type RootState, UseAppSelector } from "../../store";
+import { APP_ENV } from "../../env/index";
 
-const BASE_URL = "http://127.0.0.1:4096";
+const BASE_URL = APP_ENV.API_BASE_URL;
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");

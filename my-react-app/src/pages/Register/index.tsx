@@ -56,10 +56,10 @@ export default function RegisterPage() {
       }
 
       const res = await register(formData as any).unwrap();
-
+      console.log("Відповідь з бекенду:", res);
       alert(res.message);
 
-      dispatch(setCredentials({ user: { username, id: "" }, access: "" }));
+      dispatch(setCredentials(res));
       navigate("/");
     } catch (err: any) {
       if (err?.data) {

@@ -11,6 +11,8 @@ import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import EditCategoryPage from "./pages/EditCategoryPage";
 import ProfilePage from "./pages/Profile";
+import PasswordResetRequest from "./pages/PasswordReset";
+import PasswordResetConfirm from "./pages/PasswordResetConfirm";
 
 const App: React.FC = () => {
   return (
@@ -23,6 +25,11 @@ const App: React.FC = () => {
           <Route path={"login"} element={<LoginPage />} />
           <Route path={"register"} element={<RegisterPage />} />
           <Route path={"profile"} element={<ProfilePage />} />
+          <Route path={"password-reset"} element={<PasswordResetRequest />} />
+          <Route
+            path="password-reset-confirm/:uid/:token"
+            element={<PasswordResetConfirm />}
+          />
         </Route>
 
         <Route path={"admin"} element={<AdminLayout />}>

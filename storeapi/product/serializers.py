@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from .models import CustomUser, Category
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,7 +20,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'password', 'password2', 'phone', 'image')  # email тут
+        fields = ('username', 'email', 'password', 'password2', 'phone', 'image')  
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -32,3 +35,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Користувача з такою поштою не знайдено.")
+        return value
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(min_length=6, validators=[validate_password])

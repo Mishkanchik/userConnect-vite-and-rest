@@ -5,16 +5,25 @@ import {
 } from "../../services/authApi";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../slices/authSlice";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  id: string | number;
+  user_id?: string | number;
+  username: string;
+  email?: string;
+  phone?: string;
+  avatar?: string;
+  image?: string;
+}
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
-
   const [googleLogin, { isLoading: isGoogleLoading }] =
     useGoogleLoginMutation();
 
@@ -26,15 +35,17 @@ export default function LoginPage() {
     try {
       const res = await login({ username, password }).unwrap();
 
+      const decoded: DecodedToken = jwtDecode(res.access);
+      console.log("Розшифровані дані токена:", decoded);
       dispatch(
         setCredentials({
           access: res.access,
           user: {
-            id: res.id,
-            email: res.email,
-            phone: res.phone,
-            image: res.avatar,
-            username: res.username,
+            id: decoded.id || decoded.user_id || 0,
+            email: decoded.email,
+            phone: decoded.phone,
+            image: decoded.image,
+            username: decoded.username,
           },
         })
       );
@@ -48,26 +59,41 @@ export default function LoginPage() {
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        // ВИКЛИКАЄМО саме googleLogin, а не login!
+        const googleAccessToken = tokenResponse.access_token;
+
+        // 1. Отримуємо профіль користувача з Google API
+        const userInfoRes = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${googleAccessToken}`,
+            },
+          }
+        );
+
+        const googleUser = await userInfoRes.json();
+
+        // 2. Опціонально: відправляємо цей токен на бекенд для авторизації
         const res = await googleLogin({
-          access_token: tokenResponse.access_token,
+          access_token: googleAccessToken,
         }).unwrap();
 
+        // 3. Зберігаємо отриману інформацію в Redux
         dispatch(
           setCredentials({
-            access: res.access,
+            access: res.access, // якщо бекенд повертає JWT
             user: {
-              id: res.id,
-              email: res.email,
-              phone: res.phone,
-              image: res.avatar,
-              username: res.username,
+              id: googleUser.sub,
+              email: googleUser.email,
+              image: googleUser.picture,
+              username: googleUser.name,
             },
           })
         );
 
         navigate("/");
       } catch (err) {
+        console.error("Помилка при Google логіні:", err);
         alert("Помилка Google авторизації");
       }
     },
@@ -97,7 +123,7 @@ export default function LoginPage() {
           className="w-full mb-4 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
-        <label className="block mb-2 text-gray-700 dark:text-gray-300 font-semibold">
+        <label className="block text-gray-700 dark:text-gray-300 font-semibold">
           Пароль
         </label>
         <input
@@ -108,7 +134,14 @@ export default function LoginPage() {
           required
           className="w-full mb-6 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
-
+        <div className="flex mb-2 flex-col items-center gap-3">
+          <Link
+            to="/password-reset"
+            className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-600 underline"
+          >
+            Забули пароль? Запит на відновлення
+          </Link>
+        </div>
         <button
           type="submit"
           disabled={isLoading}

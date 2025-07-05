@@ -5,12 +5,23 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 import requests
 
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator as token_generator
+
 from .models import Category
-from .serializers import CategorySerializer, RegisterSerializer
-from .tokens import CustomTokenObtainPairSerializer  
+from .serializers import (
+    CategorySerializer,
+    RegisterSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer,
+)
+from .tokens import CustomTokenObtainPairSerializer
+
 
 User = get_user_model()
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
@@ -18,7 +29,7 @@ GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
-    serializer_class = CategorySerializer 
+    serializer_class = CategorySerializer
 
 
 class RegisterView(APIView):
@@ -36,36 +47,48 @@ class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
+
+
 class GoogleLoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         access_token = request.data.get("access_token")
         if not access_token:
-            return Response({"detail": "Access token required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Access token required"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        resp = requests.get(GOOGLE_USERINFO_URL, headers={"Authorization": f"Bearer {access_token}"})
+        resp = requests.get(
+            GOOGLE_USERINFO_URL, headers={"Authorization": f"Bearer {access_token}"}
+        )
         if resp.status_code != 200:
-            return Response({"detail": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         userinfo = resp.json()
-        
-      
-        google_id = userinfo.get("sub")               
+
+        google_id = userinfo.get("sub")
         email = userinfo.get("email")
-        phone = userinfo.get("phone_number")        
+        phone = userinfo.get("phone_number")
         avatar_url = userinfo.get("picture")
         username = userinfo.get("name") or email.split("@")[0]
         isGoogle = True
 
         if not email:
-            return Response({"detail": "Email not provided by Google"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Email not provided by Google"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        user, created = User.objects.get_or_create(email=email, defaults={
-            "username": username,
-            "isGoogle": isGoogle,
-        })
-
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": username,
+                "isGoogle": isGoogle,
+            },
+        )
 
         if phone and not user.phone:
             user.phone = phone
@@ -73,12 +96,89 @@ class GoogleLoginView(APIView):
 
         refresh = RefreshToken.for_user(user)
 
-        return Response({
-            "id": google_id,
-            "email": email,
-            "phone": phone,
-            "avatar": avatar_url,
-            "username": user.username,
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-        })
+        return Response(
+            {
+                "id": google_id,
+                "email": email,
+                "phone": phone,
+                "avatar": avatar_url,
+                "username": user.username,
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            }
+        )
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            user = User.objects.get(email=serializer.validated_data["email"])
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Користувача з таким email не знайдено."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = token_generator.make_token(user)
+
+        frontend_url = request.data.get("frontend_url", "http://localhost:5173")
+        reset_link = f"{frontend_url}/password-reset-confirm/{uid}/{token}"
+
+        send_mail(
+            subject="Відновлення паролю",
+            message=f"Для відновлення паролю перейдіть за посиланням: {reset_link}",
+            from_email="mishkanchik@ukr.net",
+            recipient_list=[user.email],
+            fail_silently=False,
+            html_message=f"""
+                <html>
+                <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                    <div style="max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 8px;">
+                        <h2 style="color: #635985;">Відновлення паролю</h2>
+                        <p>Щоб змінити пароль, перейдіть за посиланням:</p>
+                        <p><a href="{reset_link}" style="background-color:#443C68; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Змінити пароль</a></p>
+                        <p>Якщо ви не запитували відновлення, просто ігноруйте цей лист.</p>
+                    </div>
+                </body>
+                </html>
+            """,
+        )
+        return Response(
+            {"message": "Лист для відновлення паролю відправлено."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            uid = force_str(urlsafe_base64_decode(serializer.validated_data["uid"]))
+            user = User.objects.get(pk=uid)
+        except (User.DoesNotExist, ValueError):
+            return Response(
+                {"error": "Недійсний код користувача."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not token_generator.check_token(user, serializer.validated_data["token"]):
+            return Response(
+                {"error": "Недійсний або протермінований токен."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.set_password(serializer.validated_data["new_password"])
+        user.save()
+
+        return Response(
+            {"message": "Пароль успішно змінено."}, status=status.HTTP_200_OK
+        )
