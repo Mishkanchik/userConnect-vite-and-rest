@@ -1,0 +1,83 @@
+{
+  "name": "my-react-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.4",
+<<<<<<< HEAD
+    "@hello-pangea/dnd": "^18.0.1",
+=======
+>>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
+    "@heroicons/react": "^2.2.0",
+    "@react-jvectormap/core": "^1.0.4",
+    "@react-jvectormap/world": "^1.1.2",
+    "@react-oauth/google": "^0.12.2",
+    "@reduxjs/toolkit": "^2.8.2",
+    "@tailwindcss/postcss": "^4.1.10",
+<<<<<<< HEAD
+    "antd": "^5.26.4",
+=======
+    "antd": "^5.26.1",
+>>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
+    "apexcharts": "^4.7.0",
+    "flatpickr": "^4.6.13",
+    "jwt-decode": "^4.0.0",
+    "object-to-formdata": "^4.5.1",
+    "postcss": "^8.5.6",
+    "react": "^19.1.0",
+    "react-apexcharts": "^1.7.0",
+    "react-dom": "^19.1.0",
+    "react-helmet-async": "^2.0.5",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.6.2",
+<<<<<<< HEAD
+    "react-slick": "^0.30.3",
+    "react-sortable-hoc": "^2.0.0",
+    "slick-carousel": "^1.8.1",
+=======
+>>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
+    "swiper": "^11.2.8",
+    "tailwindcss": "^4.1.10",
+    "vite-plugin-svgr": "^4.3.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@types/jwt-decode": "^2.2.1",
+    "@types/react": "^19.1.2",
+<<<<<<< HEAD
+    "@types/react-beautiful-dnd": "^13.1.8",
+    "@types/react-dom": "^19.1.2",
+    "@types/react-slick": "^0.23.13",
+=======
+    "@types/react-dom": "^19.1.2",
+>>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5"
+  },
+  "overrides": {
+    "react-helmet-async": {
+      "react": "^16.8.0 || ^17 || ^18 || ^19"
+    },
+    "@react-jvectormap/core": {
+      "react": "^16.8.0 || ^17 || ^18 || ^19",
+      "react-dom": "^16.8.0 || ^17 || ^18 || ^19"
+    },
+    "@react-jvectormap/world": {
+      "react": "^16.8.0 || ^17 || ^18 || ^19",
+      "react-dom": "^16.8.0 || ^17 || ^18 || ^19"
+    }
+  }
+}
