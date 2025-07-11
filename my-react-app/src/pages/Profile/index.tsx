@@ -58,7 +58,6 @@ const ProfilePage = () => {
           </span>
         </div>
 
-        {/* Додаткові поля */}
         {Object.entries(user).map(([key, value]) => {
           if (
             ["username", "email", "phone", "image", "id"].includes(key) ||

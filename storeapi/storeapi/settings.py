@@ -145,8 +145,6 @@ EMAIL_USE_SSL = True                          # Якщо сервер вимаг
 EMAIL_HOST_USER = 'mishkanchik@ukr.net'    # Логін
 EMAIL_HOST_PASSWORD = 'G6c1QlcTm06DbrTF'       # Пароль
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER           # Від кого відправляти
-<<<<<<< HEAD
+
 APPEND_SLASH = True
-=======
- 
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
+

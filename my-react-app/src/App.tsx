@@ -14,14 +14,8 @@ import ProfilePage from "./pages/Profile";
 import PasswordResetRequest from "./pages/PasswordReset";
 import PasswordResetConfirm from "./pages/PasswordResetConfirm";
 import CategoryProductsPage from "./pages/CategoryProductsPage.tsx";
-<<<<<<< HEAD
-<<<<<<< HEAD
 import AddProductPage from "./pages/AddProductPage";
 import EditProductPage from "./pages/EditProductPage";
-=======
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
-=======
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
 
 const App: React.FC = () => {
   return (
@@ -43,14 +37,11 @@ const App: React.FC = () => {
             path="category/:id/products"
             element={<CategoryProductsPage />}
           />
-<<<<<<< HEAD
           <Route
             path="/category/:id/products/add"
             element={<AddProductPage />}
           />
           <Route path="/products/:id/edit" element={<EditProductPage />} />
-=======
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
         </Route>
 
         <Route path={"admin"} element={<AdminLayout />}>

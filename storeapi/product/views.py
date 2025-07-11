@@ -29,57 +29,39 @@ User = get_user_model()
 GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
 
-<<<<<<< HEAD
+
 
 class CategoryViewSet(ModelViewSet):
-=======
-# Категорії (тільки читання)
-class CategoryViewSet(ReadOnlyModelViewSet):
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
+
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
 
-<<<<<<< HEAD
-# Продукти з фільтром по категорії
-class ProductViewSet(ModelViewSet):
-=======
 
 # Продукти з фільтром по категорії
-class ProductViewSet(ReadOnlyModelViewSet):
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
+class ProductViewSet(ModelViewSet):
+
+
+
     queryset = Product.objects.prefetch_related('images').select_related('category')
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-<<<<<<< HEAD
-        queryset = self.queryset
-        category_id = self.request.query_params.get("category")
-<<<<<<< HEAD
-=======
 
-        print("category_id", category_id)
-        print(self.request)
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
-=======
-        print("django get_queryset")
         queryset = self.queryset
         category_id = self.request.query_params.get("category")
 
-        print("category_id", category_id)
-        print(self.request)
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
+
 
         if category_id:
             queryset = queryset.filter(category_id=category_id)
 
         return queryset
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
+
 # Фото продуктів (для адмінки або окремого керування)
 class ProductImageViewSet(ModelViewSet):
     queryset = ProductImage.objects.select_related('product')

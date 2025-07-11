@@ -16,8 +16,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
         return obj.image.url
 
 
-<<<<<<< HEAD
-import json
+
 
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
@@ -64,19 +63,7 @@ class ProductSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
-=======
-class ProductSerializer(serializers.ModelSerializer):
-    images = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Product
-        fields = ['id', 'category', 'name', 'slug', 'description', 'price', 'images']
-
-    def get_images(self, obj):
-        request = self.context.get('request')
-        return ProductImageSerializer(obj.images.all(), many=True, context={'request': request}).data
-
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
 
 class CategorySerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()

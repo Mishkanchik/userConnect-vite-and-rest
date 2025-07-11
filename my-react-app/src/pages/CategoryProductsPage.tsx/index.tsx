@@ -1,5 +1,5 @@
 import React from "react";
-<<<<<<< HEAD
+
 import { useParams, useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import {
@@ -14,20 +14,12 @@ const CategoryProductsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const categoryId = parseInt(id || "0");
   const navigate = useNavigate();
-=======
-import { useParams } from "react-router-dom";
-import { useGetProductsByCategoryQuery } from "../../services/apiProduct";
 
-const CategoryProductsPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const categoryId = Number(id);
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
 
   const {
     data: products,
     isLoading,
     error,
-<<<<<<< HEAD
     refetch,
   } = useGetProductsByCategoryQuery(categoryId);
 
@@ -119,33 +111,6 @@ const CategoryProductsPage: React.FC = () => {
               >
                 Видалити
               </button>
-=======
-  } = useGetProductsByCategoryQuery(categoryId);
-
-  if (isLoading) return <div>Завантаження товарів...</div>;
-  if (error) return <div>Помилка при завантаженні товарів</div>;
-
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Товари категорії</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products?.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white rounded shadow p-4 flex flex-col"
-          >
-            <h2 className="text-lg font-semibold">{product.name}</h2>
-            <p className="mt-2">{product.description}</p>
-            <div className="mt-3 flex space-x-2 overflow-x-auto">
-              {product.images?.map((img) => (
-                <img
-                  key={img.id}
-                  src={img.url}
-                  alt={product.name}
-                  className="w-20 h-20 object-cover rounded"
-                />
-              ))}
->>>>>>> 4be268f7ed5c81c790213c1e6a78d8527ab1bc91
             </div>
           </div>
         ))}
