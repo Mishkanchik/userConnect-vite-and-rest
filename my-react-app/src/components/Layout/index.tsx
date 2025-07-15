@@ -1,19 +1,25 @@
+import React, { useEffect, useState } from "react";
 import {
   Disclosure,
   DisclosureButton,
-  DisclosurePanel,
   Menu,
   MenuButton,
   MenuItem,
   MenuItems,
+  Transition,
 } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { BellIcon } from "@heroicons/react/24/outline";
+import {
+  Bars3Icon,
+  XMarkIcon,
+  BellIcon,
+  ShoppingCartIcon,
+} from "@heroicons/react/24/outline";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../slices/authSlice";
-import { type RootState, UseAppSelector } from "../../store";
 import { APP_ENV } from "../../env/index";
+import { UseAppSelector } from "../../store";
+import { removeFromCart, clearCart } from "../../slices/cartSlice";
 
 const BASE_URL = APP_ENV.API_BASE_URL;
 
@@ -21,186 +27,173 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-const navigation = [
-  { name: "Dashboard", href: "#", current: true },
-  { name: "Team", href: "#", current: false },
-  { name: "Projects", href: "#", current: false },
-  { name: "Calendar", href: "#", current: false },
-  { name: "Reports", href: "#", current: false },
-];
-
 const Layout = () => {
-  const user = UseAppSelector((state: RootState) => state.auth.user);
+  const user = UseAppSelector((state) => state.auth.user);
+  const cartItems = UseAppSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
   };
 
-  // Якщо user.image є і не починається з http/https, додаємо BASE_URL
   const userImageSrc = user?.image
     ? user.image.startsWith("http")
       ? user.image
       : `${BASE_URL}${user.image}`
     : "/images/user/owner.jpg";
 
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+  }, [cartItems]);
+
   return (
-    <div className="min-h-full">
+    <div className="min-h-full relative">
       <Disclosure as="nav" className="bg-gray-800">
-        {({ open }) => (
+        {() => (
           <>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 items-center justify-between">
                 <div className="flex items-center">
-                  <div className="shrink-0">
-                    <img
-                      className="h-8 w-8"
-                      src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                      alt="Your Company"
-                    />
-                  </div>
-                  <div className="hidden md:block">
-                    <div className="ml-10 flex items-baseline space-x-4">
-                      {navigation.map((item) => (
-                        <a
-                          key={item.name}
-                          href={item.href}
-                          className={classNames(
-                            item.current
-                              ? "bg-gray-900 text-white"
-                              : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                            "rounded-md px-3 py-2 text-sm font-medium"
-                          )}
-                          aria-current={item.current ? "page" : undefined}
-                        >
-                          {item.name}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
+                  <img
+                    className="h-8 w-8"
+                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                    alt="Logo"
+                  />
                 </div>
-                <div className="hidden md:block">
-                  <div className="ml-4 flex items-center md:ml-6">
-                    <button
-                      type="button"
-                      className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white"
-                    >
-                      <span className="sr-only">View notifications</span>
-                      <BellIcon className="h-6 w-6" aria-hidden="true" />
-                    </button>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setIsCartOpen(true)}
+                    className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white"
+                  >
+                    <ShoppingCartIcon className="h-6 w-6" />
+                    {cartItems.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full text-xs px-1">
+                        {cartItems.length}
+                      </span>
+                    )}
+                  </button>
+                  <button className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white">
+                    <BellIcon className="h-6 w-6" />
+                  </button>
 
-                    {user ? (
-                      <Menu as="div" className="relative ml-3">
-                        <div>
-                          <MenuButton className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm">
-                            <span className="sr-only">Open user menu</span>
-                            <img
-                              className="h-8 w-8 rounded-full"
-                              src={userImageSrc}
-                              alt="User avatar"
-                            />
-                            <span className="ml-2 text-white font-medium">
-                              {user.username || "User"}
-                            </span>
-                          </MenuButton>
-                        </div>
-                        <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                          <MenuItem>
-                            {({ active }) => (
-                              <a
-                                href="/profile"
-                                className={classNames(
-                                  active ? "bg-gray-100" : "",
-                                  "block px-4 py-2 text-sm text-gray-700"
-                                )}
-                              >
-                                Профіль
-                              </a>
-                            )}
-                          </MenuItem>
-                          <MenuItem>
-                            {({ active }) => (
-                              <button
-                                onClick={handleLogout}
-                                className={classNames(
-                                  active ? "bg-gray-100" : "",
-                                  "block w-full text-left px-4 py-2 text-sm text-gray-700"
-                                )}
-                              >
-                                Вийти
-                              </button>
-                            )}
-                          </MenuItem>
-                        </MenuItems>
-                      </Menu>
-                    ) : (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => navigate("/login")}
-                          className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm"
-                        >
-                          Вхід
-                        </button>
-                        <button
-                          onClick={() => navigate("/register")}
-                          className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm"
-                        >
-                          Реєстрація
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="-mr-2 flex md:hidden">
-                  <DisclosureButton className="inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white">
-                    <span className="sr-only">Open main menu</span>
-                    {open ? (
-                      <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                    ) : (
-                      <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                    )}
-                  </DisclosureButton>
+                  {user ? (
+                    <Menu as="div" className="relative ml-3">
+                      <MenuButton className="flex rounded-full bg-gray-800 text-sm">
+                        <img
+                          className="h-8 w-8 rounded-full"
+                          src={userImageSrc}
+                          alt="avatar"
+                        />
+                      </MenuButton>
+                      <MenuItems className="absolute right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                        <MenuItem>
+                          {({ active }) => (
+                            <a
+                              href="/profile"
+                              className={classNames(
+                                active ? "bg-gray-100" : "",
+                                "block px-4 py-2 text-sm text-gray-700"
+                              )}
+                            >
+                              Профіль
+                            </a>
+                          )}
+                        </MenuItem>
+                        <MenuItem>
+                          {({ active }) => (
+                            <button
+                              onClick={handleLogout}
+                              className={classNames(
+                                active ? "bg-gray-100" : "",
+                                "w-full text-left px-4 py-2 text-sm text-gray-700"
+                              )}
+                            >
+                              Вийти
+                            </button>
+                          )}
+                        </MenuItem>
+                      </MenuItems>
+                    </Menu>
+                  ) : (
+                    <button
+                      onClick={() => navigate("/login")}
+                      className="bg-indigo-600 text-white px-3 py-1 rounded-lg"
+                    >
+                      Увійти
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
-
-            <DisclosurePanel className="md:hidden">
-              <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
-                {navigation.map((item) => (
-                  <DisclosureButton
-                    key={item.name}
-                    as="a"
-                    href={item.href}
-                    className={classNames(
-                      item.current
-                        ? "bg-gray-900 text-white"
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                      "block rounded-md px-3 py-2 text-base font-medium"
-                    )}
-                    aria-current={item.current ? "page" : undefined}
-                  >
-                    {item.name}
-                  </DisclosureButton>
-                ))}
-              </div>
-            </DisclosurePanel>
           </>
         )}
       </Disclosure>
 
-      <header className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-            Dashboard
-          </h1>
-        </div>
-      </header>
-      <main>
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <Outlet />
-        </div>
+      {/* Cart Sidebar */}
+      <Transition show={isCartOpen}>
+        <Transition.Child
+          as={React.Fragment}
+          enter="transition duration-300 transform"
+          enterFrom="translate-x-full"
+          enterTo="translate-x-0"
+          leave="transition duration-300 transform"
+          leaveFrom="translate-x-0"
+          leaveTo="translate-x-full"
+        >
+          <div className="fixed inset-0 flex justify-end z-40">
+            <div className="w-80 bg-white p-6 flex flex-col rounded-l-2xl overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Кошик</h2>
+                <button
+                  onClick={() => setIsCartOpen(false)}
+                  className="cursor-pointer text-gray-500 hover:text-black"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+              <div className="flex-1">
+                {cartItems.length === 0 ? (
+                  <p className="text-gray-600">Кошик порожній</p>
+                ) : (
+                  cartItems.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="border-b py-2 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="font-semibold">{item.name}</p>
+                        <p className="text-sm text-gray-500">
+                          {item.price} грн
+                        </p>
+                      </div>
+                      <button
+                        className="text-red-500 hover:text-red-700 text-sm"
+                        onClick={() => dispatch(removeFromCart(item.id))}
+                      >
+                        Видалити
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+              {cartItems.length > 0 && (
+                <button
+                  onClick={() => dispatch(clearCart())}
+                  className="mt-4 bg-red-500 text-white py-2 rounded-lg"
+                >
+                  Очистити кошик
+                </button>
+              )}
+            </div>
+          </div>
+        </Transition.Child>
+      </Transition>
+
+      <main className="max-w-7xl mx-auto p-6">
+        <Outlet />
       </main>
     </div>
   );

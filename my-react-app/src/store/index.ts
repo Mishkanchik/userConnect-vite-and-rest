@@ -3,6 +3,7 @@ import { apiCategory } from "../services/apiCategory";
 import { authApi } from "../services/authApi";
 import { apiProduct } from "../services/apiProduct";
 import authReducer from "../slices/authSlice";
+import cartReducer from "../slices/cartSlice";
 import {
   useDispatch,
   type TypedUseSelectorHook,
@@ -15,6 +16,7 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [apiProduct.reducerPath]: apiProduct.reducer,
     auth: authReducer,
+    cart: cartReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -25,7 +27,8 @@ export const store = configureStore({
 });
 
 export type RootState = ReturnType<typeof store.getState>;
-export type AddDispatch = typeof store.dispatch;
+export type AppDispatch = typeof store.dispatch;
 
-export const UseAppDisptacth: () => AddDispatch = useDispatch;
+// хука для диспатчу та селектора
+export const UseAppDispatch: () => AppDispatch = useDispatch;
 export const UseAppSelector: TypedUseSelectorHook<RootState> = useSelector;

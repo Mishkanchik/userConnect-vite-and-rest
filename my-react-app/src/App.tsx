@@ -13,7 +13,7 @@ import EditCategoryPage from "./pages/EditCategoryPage";
 import ProfilePage from "./pages/Profile";
 import PasswordResetRequest from "./pages/PasswordReset";
 import PasswordResetConfirm from "./pages/PasswordResetConfirm";
-import CategoryProductsPage from "./pages/CategoryProductsPage.tsx";
+import CategoryProductsPage from "./pages/CategoryProductsPage/index.tsx";
 import AddProductPage from "./pages/AddProductPage";
 import EditProductPage from "./pages/EditProductPage";
 
