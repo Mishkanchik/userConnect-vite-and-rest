@@ -118,12 +118,20 @@ const Layout = () => {
                       </MenuItems>
                     </Menu>
                   ) : (
-                    <button
-                      onClick={() => navigate("/login")}
-                      className="bg-indigo-600 text-white px-3 py-1 rounded-lg"
-                    >
-                      Увійти
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => navigate("/login")}
+                        className="bg-indigo-600 text-white px-3 py-1 rounded-lg"
+                      >
+                        Увійти
+                      </button>
+                      <button
+                        onClick={() => navigate("/register")}
+                        className="bg-green-600 text-white px-3 py-1 rounded-lg"
+                      >
+                        Зареєструватися
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
